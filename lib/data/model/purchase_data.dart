@@ -26,7 +26,7 @@ class PurchaseData {
 
   factory PurchaseData.fromMap(Map<String, dynamic> map) {
     return PurchaseData(
-      purchased: ModelCodec.decodeList<Purchase>(map['purchased']),
+      purchased: ModelCodec.decodeList<Purchase, dynamic>(map['purchased']),
       budget: map['budget'] as double,
       spent: map['spent'] as double,
       remaining: map['remaining'] as double,

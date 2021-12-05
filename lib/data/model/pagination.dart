@@ -27,7 +27,7 @@ class Pagination<T> {
 
   factory Pagination.fromMap(Map<String, dynamic> map) {
     return Pagination(
-      data: ModelCodec.decodeList<T>(map['data']),
+      data: ModelCodec.decodeList<T, dynamic>(map['data']),
       page: map['page'] as int,
       pageSize: map['pageSize'] as int,
       hasNextPage: map['hasNextPage'] as bool,

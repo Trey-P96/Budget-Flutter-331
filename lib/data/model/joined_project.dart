@@ -1,6 +1,5 @@
 
 import 'package:budget_web/data/api/converter.dart';
-import 'package:budget_web/data/api/converter.dart';
 import 'package:budget_web/data/model/project.dart';
 import 'package:budget_web/data/model/project_user_union.dart';
 import 'package:budget_web/data/model/user.dart';
@@ -26,9 +25,9 @@ class JoinedProject {
 
   factory JoinedProject.fromMap(Map<String, dynamic> map) {
     return JoinedProject(
-      project: ModelCodec.decode<Project>(map['project']),
-      union: ModelCodec.decode<ProjectUserUnion>(map['union']),
-      user: ModelCodec.decode<User>(map['user']),
+      project: ModelCodec.decode<Project, dynamic>(map['project']),
+      union: ModelCodec.decode<ProjectUserUnion, dynamic>(map['union']),
+      user: ModelCodec.decode<User, dynamic>(map['user']),
     );
   }
 }

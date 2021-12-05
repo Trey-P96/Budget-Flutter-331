@@ -12,7 +12,7 @@ import 'package:budget_web/data/model/user.dart';
 import 'package:chopper/chopper.dart';
 
     class ModelCodec extends JsonConverter {
-  static decode<T>(dynamic value) {
+  static decode<T, I>(dynamic value) {
     if (T == dynamic) return value;
 
     print('decoding<$T>: $value');
@@ -20,7 +20,7 @@ import 'package:chopper/chopper.dart';
       if (t == T && value is T) return value;
 
     assert(value is Map<String, dynamic>, 'Value is not a Map');
-    if (value is List) return value.map((x) => ModelCodec.decode<T>(x)).toList();
+    if (value is List) return value.map((x) => ModelCodec.decode<T, I>(x)).toList();
     switch (T) {
       case int:
         return value as int;
@@ -48,16 +48,20 @@ import 'package:chopper/chopper.dart';
         return ProjectUserUnion.fromMap(value);
       case Item:
         return Item.fromMap(value);
-      case Pagination<Item>:
+      case Pagination:
+        switch (I) {
+          case Item:
+            return Pagination<Item>.fromMap(value);
+          case Project:
+            return Pagination<Project>.fromMap(value);
+          case User:
+            return Pagination<User>.fromMap(value);
+          case JoinedProject:
+            return Pagination<JoinedProject>.fromMap(value);
+          case Purchase:
+            return Pagination<Purchase>.fromMap(value);
+        }
         return Pagination<Item>.fromMap(value);
-      case Pagination<Project>:
-        return Pagination<Project>.fromMap(value);
-      case Pagination<User>:
-        return Pagination<User>.fromMap(value);
-      case Pagination<JoinedProject>:
-        return Pagination<JoinedProject>.fromMap(value);
-      case Pagination<Purchase>:
-        return Pagination<Purchase>.fromMap(value);
       case Project:
         return Project.fromMap(value);
       case AuthBody:
@@ -71,6 +75,11 @@ import 'package:chopper/chopper.dart';
   static encode(dynamic value) {
     print('value: $value, ${value == null}');
     if (value is List) return value.map(encode).toList();
+    if (value is Pagination<Item>) return value.toMap();
+    if (value is Pagination<Project>) return value.toMap();
+    if (value is Pagination<User>) return value.toMap();
+    if (value is Pagination<JoinedProject>) return value.toMap();
+    if (value is Pagination<Purchase>) return value.toMap();
     switch (value.runtimeType) {
       case String:
       case int:
@@ -95,16 +104,6 @@ import 'package:chopper/chopper.dart';
         return (value as JoinedProject).toMap();
       case Item:
         return (value as Item).toMap();
-      case Pagination<Item>:
-        return (value as Pagination<Item>).toMap();
-      case Pagination<Project>:
-        return (value as Pagination<Project>).toMap();
-      case Pagination<User>:
-        return (value as Pagination<User>).toMap();
-      case Pagination<JoinedProject>:
-        return (value as Pagination<JoinedProject>).toMap();
-      case Pagination<Purchase>:
-        return (value as Pagination<Purchase>).toMap();
       case Project:
         return (value as Project).toMap();
       case AuthBody:
@@ -112,16 +111,16 @@ import 'package:chopper/chopper.dart';
     }
   }
 
-  static List<T> decodeList<T>(dynamic value) {
+  static List<T> decodeList<T, I>(dynamic value) {
     assert(value is List, 'Value is not a List');
-    return (value as List).map<T>((e) => decode<T>(e)).toList();
+    return (value as List).map<T>((e) => decode<T, I>(e)).toList();
   }
 
   @override
   Response<BodyType> convertResponse<BodyType, InnerType>(Response response) {
     final json = super.convertResponse(response);
     print(json.body);
-    return json.copyWith<BodyType>(body: decode<BodyType>(json.body));
+    return json.copyWith<BodyType>(body: decode<BodyType, InnerType>(json.body));
   }
 
   @override
