@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: 200,
                   height: 200,
                   child: RiveAnimation.asset(
-                    'animation_2.riv',
+                    'assets/animation_2.riv',
                     animations: [],
                     fit: BoxFit.contain,
                     controllers: [_animationController],
