@@ -179,7 +179,7 @@ class _ProjectsState extends State<Projects> {
                   width: 400,
                   height: 400,
                   child: RiveAnimation.asset(
-                    'loading_F.riv',
+                    'assets/loading_F.riv',
                     animations: const ['Animation 2'],
                   ),
                 ),

@@ -27,7 +27,7 @@ class MarketItemList extends ConsumerWidget {
         error: (e) => Center(child: Text('Error: $e')),
         loading: (x) {
           return RiveAnimation.asset(
-            'loading_F.riv',
+            'assets/loading_F.riv',
             animations: const ['Animation 1'],
           );
         },

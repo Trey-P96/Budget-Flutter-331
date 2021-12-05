@@ -279,7 +279,7 @@ class _ProjectViewState extends State<ProjectView> {
           Expanded(
             child: (userMap.isEmpty)
                 ? pagination.map(
-                    loading: (_) => RiveAnimation.asset('loading_F.riv', animations: const ['Animation 1']),
+                    loading: (_) => RiveAnimation.asset('assets/loading_F.riv', animations: const ['Animation 1']),
                     error: (error) => Text('Error: $error'),
                     data: (data) => list,
                   )
@@ -290,7 +290,7 @@ class _ProjectViewState extends State<ProjectView> {
             child: (purchaseMap.isEmpty)
                 ? purchasePagination.map(
                     data: (x) => purchaseListView,
-                    loading: (_) => RiveAnimation.asset('loading_F.riv', animations: const ['Animation 1']),
+                    loading: (_) => RiveAnimation.asset('assets/loading_F.riv', animations: const ['Animation 1']),
                     error: (error) => Center(child: Text('Error: $error')),
                   )
                 : purchaseListView,

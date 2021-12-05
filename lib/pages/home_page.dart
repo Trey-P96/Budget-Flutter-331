@@ -38,7 +38,7 @@ class HomePage extends ConsumerWidget {
                   child: Transform.scale(
                     scale: .5,
                     child: RiveAnimation.asset(
-                      'store.riv',
+                      'assets/store.riv',
                       animations: [
                         'store',
                       ],
@@ -58,7 +58,7 @@ class HomePage extends ConsumerWidget {
                   child: Transform.scale(
                     scale: .5,
                     child: RiveAnimation.asset(
-                      'create.riv',
+                      'assets/create.riv',
                       animations: [
                         'create',
                       ],
@@ -78,7 +78,7 @@ class HomePage extends ConsumerWidget {
                   child: Transform.scale(
                     scale: .5,
                     child: RiveAnimation.asset(
-                      'folder.riv',
+                      'assets/folder.riv',
                       animations: [
                         'folder',
                       ],

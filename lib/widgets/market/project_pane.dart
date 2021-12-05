@@ -116,7 +116,7 @@ class ProjectPane extends ConsumerWidget {
               child: InkWell(
                 child: Center(
                   child: ref.read(_loadingPod)
-                      ? RiveAnimation.asset('loading_F.riv', animations: const ['Animation 1'])
+                      ? RiveAnimation.asset('assets/loading_F.riv', animations: const ['Animation 1'])
                       : const Text(
                           'Purchase',
                           style: const TextStyle(
