@@ -13,7 +13,7 @@ import 'package:chopper/chopper.dart';
 part 'api.chopper.dart';
 
 // The /users resource on the api
-@ChopperApi(baseUrl: "http://localhost:8888")
+@ChopperApi(baseUrl: "https://budget-api-331.herokuapp.com/")
 abstract class Api extends ChopperService {
   @Post(path: '/users/')
   Future<Response<User>> createUser(@Body() User user);
@@ -81,7 +81,7 @@ abstract class Api extends ChopperService {
   /// Creates the instance with the converter for Built Value serialization
   factory Api.create() {
     final client = ChopperClient(
-      baseUrl: 'http://localhost:8888',
+      baseUrl: 'https://budget-api-331.herokuapp.com',
       converter: ModelCodec(),
       interceptors: <RequestInterceptor>[HttpLoggingInterceptor()],
     );

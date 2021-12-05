@@ -31,11 +31,11 @@ dependencies:
     sdk: flutter
 
   chopper: # API Endpoint annotations for the generator
-  beamer: # A routing package
+  beamer: 0.14.1 # A routing package
   flutter_svg: # SVG support
   flutter_riverpod: # State management
   url_strategy:
-  rive: ^0.7.33
+  rive:
 
 dev_dependencies:
   flutter_test:
