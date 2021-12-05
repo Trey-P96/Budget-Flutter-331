@@ -11,15 +11,32 @@ import 'package:budget_web/data/model/purchase_data.dart';
 import 'package:budget_web/data/model/user.dart';
 import 'package:chopper/chopper.dart';
 
-    class ModelCodec extends JsonConverter {
+class ModelCodec extends JsonConverter {
   static decode<T, I>(dynamic value) {
     if (T == dynamic) return value;
 
     print('decoding<$T>: $value');
-    for (final t in [String, double, int, bool])
-      if (t == T && value is T) return value;
+    for (final t in [String, double, int, bool]) if (t == T && value is T) return value;
 
     assert(value is Map<String, dynamic>, 'Value is not a Map');
+
+    switch (T.toString()) {
+      case "Pagination<Item>": {
+        return Pagination<Item>.fromMap(value);
+      }
+      case "Pagination<Project>": {
+        return Pagination<Project>.fromMap(value);
+      }
+      case "Pagination<User>": {
+        return Pagination<User>.fromMap(value);
+      }
+      case "Pagination<JoinedProject>": {
+        return Pagination<JoinedProject>.fromMap(value);
+      }
+      case "Pagination<Purchase>": {
+        return Pagination<Purchase>.fromMap(value);
+      }
+    }
     if (value is List) return value.map((x) => ModelCodec.decode<T, I>(x)).toList();
     switch (T) {
       case int:
@@ -48,20 +65,6 @@ import 'package:chopper/chopper.dart';
         return ProjectUserUnion.fromMap(value);
       case Item:
         return Item.fromMap(value);
-      case Pagination:
-        switch (I) {
-          case Item:
-            return Pagination<Item>.fromMap(value);
-          case Project:
-            return Pagination<Project>.fromMap(value);
-          case User:
-            return Pagination<User>.fromMap(value);
-          case JoinedProject:
-            return Pagination<JoinedProject>.fromMap(value);
-          case Purchase:
-            return Pagination<Purchase>.fromMap(value);
-        }
-        return Pagination<Item>.fromMap(value);
       case Project:
         return Project.fromMap(value);
       case AuthBody:
