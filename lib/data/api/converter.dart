@@ -12,6 +12,12 @@ import 'package:budget_web/data/model/user.dart';
 import 'package:chopper/chopper.dart';
 
 class ModelCodec extends JsonConverter {
+  static final _paginationItem = Pagination<Item>(page: 0, data: [], hasNextPage: false, hasPreviousPage: false, pageSize: 0);
+  static final _paginationProject = Pagination<Project>(page: 0, data: [], hasNextPage: false, hasPreviousPage: false, pageSize: 0);
+  static final _paginationUser = Pagination<User>(page: 0, data: [], hasNextPage: false, hasPreviousPage: false, pageSize: 0);
+  static final _paginationJoinedProject = Pagination<JoinedProject>(page: 0, data: [], hasNextPage: false, hasPreviousPage: false, pageSize: 0);
+  static final _paginationPurchase = Pagination<Purchase>(page: 0, data: [], hasNextPage: false, hasPreviousPage: false, pageSize: 0);
+
   static decode<T, I>(dynamic value) {
     if (T == dynamic) return value;
 
@@ -20,23 +26,11 @@ class ModelCodec extends JsonConverter {
 
     assert(value is Map<String, dynamic>, 'Value is not a Map');
 
-    switch (T.toString()) {
-      case "Pagination<Item>": {
-        return Pagination<Item>.fromMap(value);
-      }
-      case "Pagination<Project>": {
-        return Pagination<Project>.fromMap(value);
-      }
-      case "Pagination<User>": {
-        return Pagination<User>.fromMap(value);
-      }
-      case "Pagination<JoinedProject>": {
-        return Pagination<JoinedProject>.fromMap(value);
-      }
-      case "Pagination<Purchase>": {
-        return Pagination<Purchase>.fromMap(value);
-      }
-    }
+    if (_paginationItem.runtimeType == T) return Pagination<Item>.fromMap(value);
+    if (_paginationProject.runtimeType == T) return Pagination<Project>.fromMap(value);
+    if (_paginationUser.runtimeType == T) return Pagination<User>.fromMap(value);
+    if (_paginationJoinedProject.runtimeType == T) return Pagination<JoinedProject>.fromMap(value);
+    if (_paginationPurchase.runtimeType == T) return Pagination<Purchase>.fromMap(value);
     if (value is List) return value.map((x) => ModelCodec.decode<T, I>(x)).toList();
     switch (T) {
       case int:
