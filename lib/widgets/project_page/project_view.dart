@@ -263,6 +263,7 @@ class _ProjectViewState extends State<ProjectView> {
                       final state = ref.read(widget.state.projectStore.state);
                       final map = Map.of(state.state);
                       map.remove(widget.project.id!);
+                      MyApp.dataStore.account!.projects.remove(widget.project.id!);
                       state.state = map;
 
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Project deleted')));

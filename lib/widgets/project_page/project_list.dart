@@ -32,7 +32,8 @@ class ProjectList extends ConsumerWidget {
             if (await showProjectPopup(context)) {
               final projects = ref.read(state.projectStore.state);
               final map = Map.of(projects.state);
-              final newPj = MyApp.dataStore.account!.projects.last;
+              final acct = MyApp.dataStore.account!;
+              final newPj = acct.projects[acct.projects.keys.last]!;
               map[newPj.id!] = newPj;
               projects.state = map;
             }

@@ -114,7 +114,7 @@ Future<bool> showProjectPopup(BuildContext context) async {
                         }
 
                         final proj = res.body!;
-                        store.account!.projects.add(proj.project);
+                        store.account!.projects[proj.project.id!] = proj.project;
 
                         Navigator.of(context).pop(true);
                       },

@@ -24,7 +24,7 @@ class ProjectList extends ConsumerWidget {
             await showProjectPopup(context);
 
             final account = MyApp.dataStore.account!;
-            if (account.projects.isNotEmpty) ref.read(state.currentProjectPod.state).state = account.projects.first;
+            if (account.projects.isNotEmpty) ref.read(state.currentProjectPod.state).state = account.projects[account.projects.keys.first];
           },
           child: const Text('Create a project'),
         ),
@@ -34,10 +34,11 @@ class ProjectList extends ConsumerWidget {
     final currentProject = ref.watch(state.currentProjectPod);
     final theme = Theme.of(context);
 
+    final keys = projects.keys.toList();
     return ListView.builder(
       itemCount: projects.length,
       itemBuilder: (context, index) {
-        final project = projects[index];
+        final project = projects[keys[index]]!;
 
         return DecoratedBox(
           decoration: BoxDecoration(border: Border(bottom: BorderSide(color: theme.dividerColor))),

@@ -49,7 +49,8 @@ class MarketItemList extends ConsumerWidget {
 
                   final purchaseMap = ref.watch(state.purchasePod);
                   int numInCart = 0;
-                  for (final list in purchaseMap.values) for (final purchase in list) if (purchase.itemId == item.id) numInCart++;
+                  for (final list in purchaseMap.values)
+                    for (final purchase in list) if (purchase.itemId == item.id) numInCart++;
 
                   final tile = ListTile(
                     dense: true,
@@ -113,26 +114,7 @@ class MarketItemList extends ConsumerWidget {
 
                   return DecoratedBox(
                     decoration: BoxDecoration(border: Border(bottom: BorderSide(color: theme.dividerColor))),
-                    child: Draggable(
-                      data: item,
-                      childWhenDragging: Opacity(
-                        opacity: .5,
-                        child: tile,
-                      ),
-                      feedback: Material(
-                        color: Colors.white.withOpacity(0.5),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints.tightFor(
-                            width: mq.size.width / 2,
-                          ),
-                          child: Opacity(
-                            opacity: .5,
-                            child: tile,
-                          ),
-                        ),
-                      ),
-                      child: tile,
-                    ),
+                    child: tile,
                   );
                 },
               ),

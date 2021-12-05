@@ -32,6 +32,7 @@ class ProjectPod {
       final map = ref.read(projectStore);
       for (final project in projects.data) map[project.id!] = project;
       ref.read(projectStore.state).state = map;
+      MyApp.dataStore.account!.projects.addAll(map);
       print('Map: $map');
       return projects;
     });

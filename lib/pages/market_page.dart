@@ -41,7 +41,7 @@ class MarketPod {
     itemPod = StateProvider.autoDispose<List<Item>>((ref) => <Item>[]);
     currentProjectPod = StateProvider.autoDispose<Project?>((ref) {
       final projs = MyApp.dataStore.account!.projects;
-      return projs.isEmpty ? null : projs.first;
+      return projs.isEmpty ? null : projs[projs.keys.elementAt(0)];
     });
     purchasePod = StateProvider.autoDispose<Map<String, List<Purchase>>>((ref) => {});
     marketFetchingPod = FutureProvider.autoDispose.family<Pagination<Item>, QueryData>((r, p) => _getMarketPage(r, p, itemPod));
@@ -84,7 +84,7 @@ class _MarketPageState extends State<MarketPage> {
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
       final fetchingData = ref.watch(_pod.marketFetchingPod(_queryData));
-      final currentProject = ref.watch(_pod.currentProjectPod)!;
+      final currentProject = ref.watch(_pod.currentProjectPod);
 
       return Scaffold(
         appBar: AppBar(
@@ -98,7 +98,7 @@ class _MarketPageState extends State<MarketPage> {
               tooltip: 'Logout',
               onPressed: () => MyApp.dataStore.logout(),
             ),
-            if (currentProject.hasBudget)
+            if (currentProject != null && currentProject.hasBudget)
               MakeMeRich(
                 currentProject: currentProject,
                 onUpdate: (x) {
