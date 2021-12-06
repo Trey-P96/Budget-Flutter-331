@@ -13,7 +13,9 @@ import 'package:chopper/chopper.dart';
 part 'api.chopper.dart';
 
 // The /users resource on the api
-@ChopperApi(baseUrl: "https://budget-api-331.herokuapp.com/")
+//https://budget-api-331.herokuapp.com  #update lines 18 and 86
+//https://budget-api-331.herokuapp.com/
+@ChopperApi(baseUrl: "https://budget-api-331.herokuapp.com")
 abstract class Api extends ChopperService {
   @Post(path: '/users/')
   Future<Response<User>> createUser(@Body() User user);
@@ -37,7 +39,7 @@ abstract class Api extends ChopperService {
   Future<Response<PurchaseData>> createPurchases(@Body() List<Purchase> purchase);
 
   @Post(path: '/projects/{id}/make-me-rich')
-  Future<Response<Project>> makeMeRich(@Path('id') String id);
+  Future<Response<Project>> makeMeRich(@Path('id') String projectId);
 
   @Get(path: '/projects')
   Future<Response<Pagination<Project>>> getProjects({
@@ -82,7 +84,9 @@ abstract class Api extends ChopperService {
   factory Api.create() {
     final client = ChopperClient(
       baseUrl: 'https://budget-api-331.herokuapp.com',
+      // Converts json to models
       converter: ModelCodec(),
+      // Logs requests as we get them
       interceptors: <RequestInterceptor>[HttpLoggingInterceptor()],
     );
     return _$Api(client);

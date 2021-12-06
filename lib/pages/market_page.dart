@@ -148,7 +148,11 @@ class _MarketPageState extends State<MarketPage> {
   void _onScroll() {
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent && !_scrollController.position.outOfRange) {
       final value = MyApp.podRef.read(_pod.marketFetchingPod.call(_queryData));
-      assert(value is AsyncData, "Value was not async data");
+      if(value is AsyncLoading) return;
+      if(value is AsyncError){
+        _pod.marketFetchingPod.create(_queryData);
+        return;
+      }
       final data = value.asData!.value;
       if (!data.hasNextPage) return;
       _queryData = QueryData()

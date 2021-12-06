@@ -104,11 +104,15 @@ class _ProjectViewState extends State<ProjectView> {
   ) {
     if (controller.offset >= controller.position.maxScrollExtent && !controller.position.outOfRange) {
       final value = MyApp.podRef.read(pod(data));
-      assert(value is AsyncData, "Value was not async data");
+      if(value is AsyncLoading) return;
+      if(value is AsyncError) {
+        pod.create(data);
+        return;
+      }
       final pageData = value.asData!.value;
       if (!pageData.hasNextPage) return;
       data.page = (data.page ?? 0) + 1;
-      pod(data);
+      pod.create(data);
     }
   }
 

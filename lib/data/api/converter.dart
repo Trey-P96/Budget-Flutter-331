@@ -12,12 +12,14 @@ import 'package:budget_web/data/model/user.dart';
 import 'package:chopper/chopper.dart';
 
 class ModelCodec extends JsonConverter {
+  // Example pagination types to check against Pagination<T>
   static final _paginationItem = Pagination<Item>(page: 0, data: [], hasNextPage: false, hasPreviousPage: false, pageSize: 0);
   static final _paginationProject = Pagination<Project>(page: 0, data: [], hasNextPage: false, hasPreviousPage: false, pageSize: 0);
   static final _paginationUser = Pagination<User>(page: 0, data: [], hasNextPage: false, hasPreviousPage: false, pageSize: 0);
   static final _paginationJoinedProject = Pagination<JoinedProject>(page: 0, data: [], hasNextPage: false, hasPreviousPage: false, pageSize: 0);
   static final _paginationPurchase = Pagination<Purchase>(page: 0, data: [], hasNextPage: false, hasPreviousPage: false, pageSize: 0);
 
+  // Turns json into a data class
   static decode<T, I>(dynamic value) {
     if (T == dynamic) return value;
 
@@ -31,6 +33,7 @@ class ModelCodec extends JsonConverter {
     if (_paginationUser.runtimeType == T) return Pagination<User>.fromMap(value);
     if (_paginationJoinedProject.runtimeType == T) return Pagination<JoinedProject>.fromMap(value);
     if (_paginationPurchase.runtimeType == T) return Pagination<Purchase>.fromMap(value);
+
     if (value is List) return value.map((x) => ModelCodec.decode<T, I>(x)).toList();
     switch (T) {
       case int:
@@ -69,6 +72,7 @@ class ModelCodec extends JsonConverter {
     throw "unable to deserialize";
   }
 
+  // Turns a model into json
   static encode(dynamic value) {
     print('value: $value, ${value == null}');
     if (value is List) return value.map(encode).toList();
@@ -108,6 +112,7 @@ class ModelCodec extends JsonConverter {
     }
   }
 
+  // Decodes a json list into a model list
   static List<T> decodeList<T, I>(dynamic value) {
     assert(value is List, 'Value is not a List');
     return (value as List).map<T>((e) => decode<T, I>(e)).toList();
@@ -115,14 +120,15 @@ class ModelCodec extends JsonConverter {
 
   @override
   Response<BodyType> convertResponse<BodyType, InnerType>(Response response) {
-    final json = super.convertResponse(response);
-    print(json.body);
-    return json.copyWith<BodyType>(body: decode<BodyType, InnerType>(json.body));
+    final json = super.convertResponse(response); // convert the response body to json
+    print(json.body); // log the json
+    final converted = decode<BodyType, InnerType>(json.body); // convert to models
+    return json.copyWith<BodyType>(body: converted); // return to request
   }
 
   @override
   Request convertRequest(Request request) {
-    dynamic json = encode(request.body);
-    return super.convertRequest(request.copyWith(body: json));
+    dynamic json = encode(request.body); // Turn the model into json
+    return super.convertRequest(request.copyWith(body: json)); // return the transformed request
   }
 }

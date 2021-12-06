@@ -124,14 +124,18 @@ class _ProjectsState extends State<Projects> {
   void _onScroll() {
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent && !_scrollController.position.outOfRange) {
       final value = MyApp.podRef.read(_pod.projectPagePod(_queryData));
-      assert(value is AsyncData, "Value was not async data");
+      if(value is AsyncLoading) return;
+      if(value is AsyncError){
+        _pod.projectPagePod.create(_queryData);
+        return;
+      }
       final data = value.asData!.value;
 
       if (!data.hasNextPage) return;
       _queryData = QueryData()
         ..count = _queryData.count
         ..page = (_queryData.page ?? 0) + 1;
-      _pod.projectPagePod(_queryData); // update the pod
+      _pod.projectPagePod.create(_queryData); // update the pod
     }
   }
 
