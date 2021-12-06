@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rive/rive.dart';
 
 class ProjectPod {
+  final queryData = AutoDisposeChangeNotifierProvider((ref) => QueryData());
   late final AutoDisposeFutureProviderFamily<Pagination<Project>, QueryData> projectPagePod;
   late final StateProvider<Map<String, Project>> projectStore;
   late final AutoDisposeStateProvider<Project?> currentProject;
@@ -39,70 +40,6 @@ class ProjectPod {
   }
 }
 
-// class SimpleAnimation extends StatelessWidget {
-//   const SimpleAnimation({Key? key}) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Scaffold(
-//       body: Center(
-//         child: RiveAnimation.asset(
-//           'assets/loading.riv',
-//         ),
-//       ),
-//     );
-//   }
-// }
-class PlayOneShotAnimation extends StatefulWidget {
-  const PlayOneShotAnimation({Key? key}) : super(key: key);
-
-  @override
-  _PlayOneShotAnimationState createState() => _PlayOneShotAnimationState();
-}
-
-class _PlayOneShotAnimationState extends State<PlayOneShotAnimation> {
-  /// Controller for playback
-  late RiveAnimationController _controller;
-
-  /// Is the animation currently playing?
-  bool _isPlaying = false;
-
-  Completer<void> _completer = Completer();
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = OneShotAnimation(
-      'Animation 2',
-      autoplay: false,
-      onStop: () => setState(() => _completer.complete()),
-      onStart: () => setState(() => _completer = Completer()),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('One-Shot Example'),
-      ),
-      body: Center(
-        child: RiveAnimation.asset(
-          'assets/loading_F.riv',
-          animations: const [],
-          controllers: [_controller],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        // disable the button while playing the animation
-        onPressed: () => _isPlaying ? null : _controller.isActive = true,
-        tooltip: 'Play',
-        child: const Icon(Icons.arrow_upward),
-      ),
-    );
-  }
-}
-
 class Projects extends StatefulWidget {
   @override
   State<Projects> createState() => _ProjectsState();
@@ -116,22 +53,24 @@ class _ProjectsState extends State<Projects> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    MyApp.podRef.read(_pod.projectPagePod(_queryData));
+    final qd = MyApp.podRef.read(_pod.queryData);
+    MyApp.podRef.read(_pod.projectPagePod(qd));
   }
-
-  QueryData _queryData = QueryData()..page = 0;
 
   void _onScroll() {
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent && !_scrollController.position.outOfRange) {
-      final value = MyApp.podRef.read(_pod.projectPagePod(_queryData));
-      assert(value is AsyncData, "Value was not async data");
+      final qd = MyApp.podRef.read(_pod.queryData);
+      final value = MyApp.podRef.read(_pod.projectPagePod(qd));
+      if (value is AsyncLoading) return;
+      if (value is AsyncError) {
+        _pod.projectPagePod(qd..update());
+        return;
+      }
       final data = value.asData!.value;
 
       if (!data.hasNextPage) return;
-      _queryData = QueryData()
-        ..count = _queryData.count
-        ..page = (_queryData.page ?? 0) + 1;
-      _pod.projectPagePod(_queryData); // update the pod
+      qd.page++;
+      _pod.projectPagePod(qd); // update the pod
     }
   }
 
@@ -146,7 +85,8 @@ class _ProjectsState extends State<Projects> {
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
-      final query = ref.watch(_pod.projectPagePod(_queryData));
+      final qd = ref.watch(_pod.queryData);
+      final query = ref.watch(_pod.projectPagePod(qd));
 
       return Scaffold(
         appBar: AppBar(
@@ -168,7 +108,7 @@ class _ProjectsState extends State<Projects> {
               child: query.map(
                 data: (d) => ProjectList(
                   state: _pod,
-                  queryData: _queryData,
+                  queryData: qd,
                 ),
                 error: (e) => Center(
                   child: Text(

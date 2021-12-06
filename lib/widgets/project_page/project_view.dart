@@ -24,6 +24,9 @@ class ProjectView extends StatefulWidget {
 }
 
 class _ProjectViewPod {
+  final queryData = AutoDisposeChangeNotifierProvider((ref) => QueryData());
+  final purchaseQueryData = AutoDisposeChangeNotifierProvider((ref) => QueryData());
+
   late final StateProvider<Map<String, User>> usersStore;
   late StateProvider<Project> projectStore;
   late final StateProvider<Map<String, Purchase>> purchasesStore;
@@ -78,8 +81,6 @@ class _ProjectViewPod {
 class _ProjectViewState extends State<ProjectView> {
   late TextEditingController _controller;
   late final _pod = _ProjectViewPod(widget.project);
-  var _queryData = QueryData()..page = 0;
-  var _purchaseQueryData = QueryData()..page = 0;
 
   ScrollController _usersController = ScrollController();
   ScrollController _purchasesController = ScrollController();
@@ -90,25 +91,31 @@ class _ProjectViewState extends State<ProjectView> {
     _controller = TextEditingController();
     _controller.text = widget.project.name;
 
-    _usersController.addListener(() => _onScroll(_pod.usersFetcher, _queryData, _usersController));
-    _purchasesController.addListener(() => _onScroll(_pod.purchaseFetcher, _purchaseQueryData, _purchasesController));
+    _usersController.addListener(() => _onScroll(_pod.usersFetcher, _pod.queryData, _usersController));
+    _purchasesController.addListener(() => _onScroll(_pod.purchaseFetcher, _pod.purchaseQueryData, _purchasesController));
 
-    MyApp.podRef.read(_pod.usersFetcher(_queryData));
-    MyApp.podRef.read(_pod.purchaseFetcher(_purchaseQueryData));
+
+    MyApp.podRef.read(_pod.usersFetcher(MyApp.podRef.read(_pod.queryData)));
+    MyApp.podRef.read(_pod.purchaseFetcher(MyApp.podRef.read(_pod.purchaseQueryData)));
   }
 
   void _onScroll(
     FutureProviderFamily<Pagination<dynamic>, QueryData> pod,
-    QueryData data,
+    AutoDisposeChangeNotifierProvider<QueryData> queryData,
     ScrollController controller,
   ) {
     if (controller.offset >= controller.position.maxScrollExtent && !controller.position.outOfRange) {
-      final value = MyApp.podRef.read(pod(data));
-      assert(value is AsyncData, "Value was not async data");
+      final qd = MyApp.podRef.read(queryData);
+      final value = MyApp.podRef.read(pod(qd));
+      if (value is AsyncLoading) return;
+      if (value is AsyncError) {
+        pod.create(qd..update());
+        return;
+      }
       final pageData = value.asData!.value;
       if (!pageData.hasNextPage) return;
-      data.page = (data.page ?? 0) + 1;
-      pod(data);
+      qd.page++;
+      pod(qd);
     }
   }
 
@@ -124,11 +131,13 @@ class _ProjectViewState extends State<ProjectView> {
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
-      final pagination = ref.watch(_pod.usersFetcher(_queryData));
+      final userQd = ref.watch(_pod.queryData);
+      final pagination = ref.watch(_pod.usersFetcher(userQd));
       final userMap = ref.watch(_pod.usersStore);
       final userList = userMap.values.toList();
 
-      final purchasePagination = ref.watch(_pod.purchaseFetcher(_purchaseQueryData));
+      final projectQd = ref.watch(_pod.purchaseQueryData);
+      final purchasePagination = ref.watch(_pod.purchaseFetcher(projectQd));
       final purchaseMap = ref.watch(_pod.purchasesStore);
       final purchaseList = purchaseMap.values.toList();
 

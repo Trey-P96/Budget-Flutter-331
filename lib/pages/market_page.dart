@@ -14,11 +14,32 @@ import 'package:budget_web/widgets/market/project_pane.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class QueryData {
-  int? count;
-  int? page;
+class QueryData with ChangeNotifier {
+  int? _count;
+  int _page;
 
-  QueryData();
+  QueryData({
+    int? count,
+    int page = 0,
+  }) : _page = page, _count = count;
+
+  int get page => _page;
+
+  set page(int value) {
+    _page = value;
+    notifyListeners();
+  }
+
+  int? get count => _count;
+
+  set count(int? value) {
+    _count = value;
+    notifyListeners();
+  }
+
+  void update() {
+    notifyListeners();
+  }
 }
 
 class MarketPage extends StatefulWidget {
@@ -31,6 +52,7 @@ class MarketPage extends StatefulWidget {
 }
 
 class MarketPod {
+  final queryPod = AutoDisposeChangeNotifierProvider((ref) => QueryData());
   late final AutoDisposeStateProvider<List<Item>> itemPod;
   late final AutoDisposeStateProvider<Project?> currentProjectPod;
   late final AutoDisposeStateProvider<Map<String, List<Purchase>>> purchasePod;
@@ -73,17 +95,18 @@ class _MarketPageState extends State<MarketPage> {
   @override
   void initState() {
     super.initState();
-    _pod.marketFetchingPod.call(QueryData()..page = 0);
+    final ref = MyApp.podRef;
+    _pod.marketFetchingPod.call(ref.read(_pod.queryPod));
     _scrollController.addListener(_onScroll);
   }
 
   final _scrollController = ScrollController();
-  var _queryData = QueryData();
-
+  // var _queryData = QueryData();
+  //
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
-      final fetchingData = ref.watch(_pod.marketFetchingPod(_queryData));
+      final fetchingData = ref.watch(_pod.marketFetchingPod(ref.watch(_pod.queryPod)));
       final currentProject = ref.watch(_pod.currentProjectPod);
 
       return Scaffold(
@@ -131,7 +154,7 @@ class _MarketPageState extends State<MarketPage> {
                     flex: 2,
                     child: MarketItemList(
                       state: _pod,
-                      queryData: _queryData,
+                      queryData: ref.watch(_pod.queryPod),
                       controller: _scrollController,
                     ),
                   ),
@@ -147,14 +170,19 @@ class _MarketPageState extends State<MarketPage> {
 
   void _onScroll() {
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent && !_scrollController.position.outOfRange) {
-      final value = MyApp.podRef.read(_pod.marketFetchingPod.call(_queryData));
-      assert(value is AsyncData, "Value was not async data");
+      final qd = MyApp.podRef.read(_pod.queryPod);
+      final value = MyApp.podRef.read(_pod.marketFetchingPod.call(qd));
+      if (value is AsyncLoading) return;
+      if (value is AsyncError) {
+        qd.update();
+        _pod.marketFetchingPod(qd);
+        return;
+      }
+
       final data = value.asData!.value;
       if (!data.hasNextPage) return;
-      _queryData = QueryData()
-        ..count = _queryData.count
-        ..page = (_queryData.page ?? 0) + 1;
-      _pod.marketFetchingPod(_queryData);
+      qd.page++;
+      _pod.marketFetchingPod(qd);
     }
   }
 }
